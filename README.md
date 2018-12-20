@@ -3,6 +3,17 @@ Find equilibrium in games with RL
 
 Work based on the book "Prediction, Learning, and Games" by CESA-BIANCHI and LUGOSI
 
+## Concerning the UCB
+
+Doesn't work well against an oblivious opponent equipped with an optimal strategy, or himself.
+The algorithm learns well when there's a noticeable difference between the different arms to pull.
+Here the gap is too narrow so it just focuses on one arm, the one that worked well in the beginning,
+and it keeps choosing it over the other. And the upper bound term grows too slowly to make a difference on
+10000 steps or so.
+For the situation opposing two bandits, they both play in the beginning their arms in a predetermined order,
+and the results do have a huge influence on the game afterwards.
+I don't know if it converges to a correlated equilibirum or else though.
+
 ## Points bloquants
 
 Difference entre equilibre de Nash et stratégie optimale associée à la valeur
@@ -10,10 +21,6 @@ Difference entre equilibre de Nash et stratégie optimale associée à la valeur
 Remarque 7.4, convergence vers l'équilibre de Nash, mais pas vers l'équilibre de Nash
 
 Explication de l'algorithme d'exploration exploitation 
-
-## Code
-
-Implémentation en classe des méthodes
 
 ## Méthodes à implémenter
 
@@ -26,7 +33,7 @@ Possibilité de rendre Hannan consistent en perturbant légèrement
 Exponentially weighted average (Hannan consistent)
 Affichage de la borne (Corollaire 4.2)
 
-Regret matching Vianney Perchet
+Regret matching Perchet
 
 section 7.11
 Deterministic exploration exploitation
