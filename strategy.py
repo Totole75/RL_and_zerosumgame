@@ -36,7 +36,7 @@ class oblivious_play(strategy):
 
 class fictitious_play(strategy):
     """
-    Strategy using fictitious play
+    Strategy using fictitious play (not Hannan consistent)
     """
     def __init__(self, loss_array):
         strategy.__init__(self, loss_array)
@@ -49,7 +49,30 @@ class fictitious_play(strategy):
             self.first_turn = False
         else:
             empirical_adversary_distrib = opponent_past_actions/(float(self.draws_nb))
-            drawn_action = np.argmax(np.dot(self.loss_array, empirical_adversary_distrib))
+            drawn_action = np.argmin(np.dot(self.reward_array, empirical_adversary_distrib))
+        self.past_actions[drawn_action] += 1
+        self.draws_nb += 1
+        return drawn_action
+
+    def take_reward(self, drawn_action, reward):
+        return
+
+class perturbed_fictitious_play(strategy):
+    """
+    Strategy using fictitious play with perturbed loss to make it
+    Hannan consistent
+    """
+    def __init__(self, reward_array):
+        strategy.__init__(self, reward_array)
+        self.first_turn = True
+
+    def draw_action(self, opponent_past_actions):
+        if self.first_turn:
+            drawn_action = np.random.randint(0, self.action_nb)
+            self.first_turn = False
+        else:
+            perturbations = np.random.uniform(low=0, high=np.sqrt(self.action_nb*(1+self.draws_nb)), size=self.action_nb)
+            drawn_action = np.argmin(np.dot(self.reward_array, opponent_past_actions) + perturbations)
         self.past_actions[drawn_action] += 1
         self.draws_nb += 1
         return drawn_action
@@ -72,12 +95,29 @@ class bandit_UCB(strategy):
         if (self.draws_nb < self.action_nb) :
             # Sampling each arm/action first
             drawn_action = self.draws_nb
-            #print(self.rewards, self.past_actions, self.rewards/self.past_actions)
         else:
             bound_term = np.sqrt(math.log(self.draws_nb+1)/(2*self.past_actions))
             upper_bound_values = self.rewards/self.past_actions + self.confidence_coef * bound_term
-            #print(self.rewards, self.past_actions, self.rewards/self.past_actions, upper_bound_values)
-            drawn_action = np.argmax(upper_bound_values)
+            drawn_action = np.argmin(upper_bound_values)
+        self.past_actions[drawn_action] += 1
+        self.draws_nb += 1
+        return drawn_action
+
+    def take_reward(self, drawn_action, reward):
+        self.rewards[drawn_action] += reward
+
+class exp_weighted_average(strategy):
+    """
+    Strategy using the exponentially weighted average strategy (Hannan consistent)
+    """
+    def __init__(self, reward_array):
+        strategy.__init__(self, reward_array)
+        self.exp_coef = np.sqrt(8*np.log(self.action_nb))
+
+    def draw_action(self, opponent_past_actions):
+        exp_values = np.exp(np.dot(self.reward_array, opponent_past_actions) * (-self.exp_coef/np.sqrt(1+self.draws_nb)))
+        action_probas = exp_values / np.linalg.norm(exp_values, ord=1)
+        drawn_action = np.random.choice(range(self.action_nb), p=action_probas)
         self.past_actions[drawn_action] += 1
         self.draws_nb += 1
         return drawn_action
