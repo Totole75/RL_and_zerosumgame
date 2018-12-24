@@ -50,7 +50,7 @@ class fictitious_play(strategy):
             self.first_turn = False
         else:
             empirical_adversary_distrib = opponent_past_actions/(float(self.draws_nb))
-            drawn_action = np.argmin(np.dot(self.reward_array, empirical_adversary_distrib))
+            drawn_action = np.argmin(np.dot(self.loss_array, empirical_adversary_distrib))
         self.past_actions[drawn_action] += 1
         self.draws_nb += 1
         return drawn_action
@@ -63,17 +63,19 @@ class perturbed_fictitious_play(strategy):
     Strategy using fictitious play with perturbed loss to make it
     Hannan consistent
     """
-    def __init__(self, reward_array):
-        strategy.__init__(self, reward_array)
+    def __init__(self, loss_array):
+        strategy.__init__(self, loss_array)
         self.first_turn = True
+        self.past_actions = np.zeros(self.action_nb)
 
-    def draw_action(self, opponent_past_actions):
+
+    def draw_action(self, player_past_actions, opponent_past_actions):
         if self.first_turn:
             drawn_action = np.random.randint(0, self.action_nb)
             self.first_turn = False
         else:
             perturbations = np.random.uniform(low=0, high=np.sqrt(self.action_nb*(1+self.draws_nb)), size=self.action_nb)
-            drawn_action = np.argmin(np.dot(self.reward_array, opponent_past_actions) + perturbations)
+            drawn_action = np.argmin(np.dot(self.loss_array, opponent_past_actions) + perturbations)
         self.past_actions[drawn_action] += 1
         self.draws_nb += 1
         return drawn_action
@@ -91,7 +93,6 @@ class bandit_UCB(strategy):
         self.confidence_coef = confidence_coef
         self.rewards = np.zeros((self.action_nb))
         self.past_actions = np.zeros(self.action_nb)
-        self.rewards = np.zeros((self.action_nb))
         
     def draw_action(self, player_past_actions, opponent_past_actions):
         if (self.draws_nb < self.action_nb) :
@@ -135,7 +136,7 @@ class deterministic_explor_exploit(strategy):
     Strategy using the deterministic exploration_exploitation theory (cf p222)
     """
     def __init__(self, loss_array, nb_step):
-        strategy.__init__(self, loss_array, nb_step)
+        strategy.__init__(self, loss_array)
         self.mu = np.zeros((self.action_nb, nb_step))
         self.rewards = np.zeros((self.action_nb))
         self.past_actions = np.zeros(nb_step).astype(int)
@@ -166,7 +167,7 @@ class deterministic_explor_exploit(strategy):
         self.past_actions[self.draws_nb] = drawn_action
         self.draws_nb += 1
 
-        return drawn_action
+        return(drawn_action)
 
     def take_reward(self, drawn_action, reward):
         #print(reward, drawn_action)
