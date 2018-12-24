@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 
+from solveur import *
 from strategy import *
 
 # Defining the reward array

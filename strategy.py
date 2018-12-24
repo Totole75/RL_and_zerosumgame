@@ -9,6 +9,7 @@ class strategy:
         self.loss_array = loss_array
         self.action_nb = self.loss_array.shape[0]
         self.draws_nb = 0
+        
 
     def draw_action(self):
         raise NotImplementedError()
@@ -90,6 +91,7 @@ class bandit_UCB(strategy):
         self.confidence_coef = confidence_coef
         self.rewards = np.zeros((self.action_nb))
         self.past_actions = np.zeros(self.action_nb)
+        self.rewards = np.zeros((self.action_nb))
         
     def draw_action(self, player_past_actions, opponent_past_actions):
         if (self.draws_nb < self.action_nb) :
@@ -110,12 +112,14 @@ class exp_weighted_average(strategy):
     """
     Strategy using the exponentially weighted average strategy (Hannan consistent)
     """
-    def __init__(self, reward_array):
-        strategy.__init__(self, reward_array)
+    def __init__(self, loss_array):
+        strategy.__init__(self, loss_array)
         self.exp_coef = np.sqrt(8*np.log(self.action_nb))
+        self.past_actions = np.zeros(self.action_nb)
+        self.rewards = np.zeros((self.action_nb))
 
-    def draw_action(self, opponent_past_actions):
-        exp_values = np.exp(np.dot(self.reward_array, opponent_past_actions) * (-self.exp_coef/np.sqrt(1+self.draws_nb)))
+    def draw_action(self, player_past_actions, opponent_past_actions):
+        exp_values = np.exp(np.dot(self.loss_array, opponent_past_actions) * (-self.exp_coef/np.sqrt(1+self.draws_nb)))
         action_probas = exp_values / np.linalg.norm(exp_values, ord=1)
         drawn_action = np.random.choice(range(self.action_nb), p=action_probas)
         self.past_actions[drawn_action] += 1
