@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import tools
+
 class strategy:
     """
     Class presenting the general structure for a strategy
@@ -9,7 +10,6 @@ class strategy:
         self.loss_array = loss_array
         self.action_nb = self.loss_array.shape[0]
         self.draws_nb = 0
-        
 
     def draw_action(self):
         raise NotImplementedError()

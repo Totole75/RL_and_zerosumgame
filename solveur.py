@@ -10,16 +10,14 @@ import numpy as np
 from cvxopt import matrix, solvers
 solvers.options['glpk'] = {'tm_lim': 1000} # max timeout for glpk
 
-
-def print_sol(sol):
-    print("Reward array for this game : ")
-    print(reward_array)
+def print_sol(sol, A):
     print("")
     print("Value of this game : ")
-    print(opt_valeur)
-    print("An optimal strategy : ")
-    print(opt_strategy)
-    print("")
+    print(sol['primal objective'])
+    print("An optimal strategy for player 0 : ")
+    print(np.array(sol['x'][1:]))
+    print("An optimal strategy for player 1 : ")
+    print(np.array(sol['z'][:A.size[1]-1]))
 
 def solve_2players(A, solver="glpk", verbose=True):
     """
@@ -50,9 +48,9 @@ def solve_2players(A, solver="glpk", verbose=True):
     sol = solvers.lp(c=c, G=G, h=h, A=A, b=b, solver=solver, verbose=False)
     
     if verbose:
-        print_sol(sol)
+        print_sol(sol, A)
     
-    return(sol['primal objective'], sol['x'][1:])
+    return(sol['primal objective'], [np.array(sol['x'][1:]), np.array(sol['z'][:A.size[1]-1])])
     
     
 ###############################################################
