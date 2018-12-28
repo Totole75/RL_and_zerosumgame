@@ -30,7 +30,7 @@ def solve_2players(A, solver="glpk", verbose=True):
     c = matrix(c)
     # constraints G*x <= h
     G = np.matrix(A, dtype="float").T # reformat each variable is in a row
-    G *= -1 # minimization constraint
+    #G *= -1 # comment this line if loss array
     G = np.vstack([G, np.eye(num_vars) * -1]) # > 0 constraint for all vars
     new_col = [1 for i in range(num_vars)] + [0 for i in range(num_vars)]
     G = np.insert(G, 0, new_col, axis=1) # insert utility column
