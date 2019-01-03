@@ -2,15 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from solveur import *
 from strategy import *
+from lh_main import *
 
 # Defining the reward array
 #loss_array = np.array([[3,2],[2,1]])
 #loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
 #loss_array = np.array([[1,0],[2,3]])
-loss_array = np.array([[1,-2],[-1,0]])
-#loss_array = np.array([[3,0,-2,7],[1,0,4,-2]])
+#loss_array = np.array([[1,-2],[-1,0]])
+loss_array = np.array([[3,0,-2,7],[1,0,4,-2]])
+#loss_array = np.array([[1,2, 3],[4,5, 6]])
 #loss_array = np.random.rand(20,20)
 
 # Number of steps for the algorithm
@@ -28,8 +29,10 @@ players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictiti
 #players = [deterministic_explor_exploit(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
 #players = [regret_matching(loss_array, step_number),  exp_weighted_average(-loss_array.T, step_number)]
 
-opt_valeur, opt_strategies = solve_2players(loss_array, verbose=True)
-#opt_valeur, opt_strategy = ce(-loss_array.transpose())
+#Solving
+opt_valeur, opt_strategies = solve(loss_array)
+print(opt_strategies)
+print("Value : " + str(opt_valeur))
 print("")
 
 joint_past_actions = np.zeros(loss_array.shape)
