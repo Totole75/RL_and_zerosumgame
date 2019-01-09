@@ -41,8 +41,7 @@ Explication de l'algorithme d'exploration exploitation
 
 ## Méthodes à implémenter
 
-Résolution numérique du minmax
-Descente/Montée de gradient
+Implémentation de l'algorithme Lemke Hawson
 
 Fictitious play (not Hannan consistent)
 Possibilité de rendre Hannan consistent en perturbant légèrement
