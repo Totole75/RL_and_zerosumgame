@@ -50,12 +50,13 @@ Borne à tracer (corollaire 4.4 p76, non oblivious opponent case)
 Exponentially weighted average (Hannan consistent)
 Affichage de la borne (Corollaire 4.2)
 
-Regret matching Perchet
+Regret matching (Hannan consistent)
 
 section 7.11
 Deterministic exploration exploitation
 
 Multi Armed Bandit UCB
+To be used when looking for a pure strategy
 
 ## Bonus
 

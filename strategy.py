@@ -121,6 +121,7 @@ class bandit_UCB(strategy):
 class regret_matching(strategy):
     """
     Strategy using the regret matching strategy
+    Hannan consistent
     """
     def __init__(self, loss_array, nb_step):
         strategy.__init__(self, loss_array)
