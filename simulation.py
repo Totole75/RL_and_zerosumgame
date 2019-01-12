@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 from tqdm import tqdm
 
 from strategy import *
@@ -66,6 +67,8 @@ for player_idx, player in enumerate(players):
 print("Joint past actions : ")
 print(joint_past_actions/float(step_number))
 
+sns.set(style="darkgrid")
+
 # Showing convergence to the optimal strategy
 # The first steps are deleted so we can see the real convergence
 for player_idx, player in enumerate(players):
@@ -75,9 +78,12 @@ plt.show()
 # Displaying bounds related to the regret
 plt.plot(range(step_number), regret_evolution)
 
-delta = 0.1
+delta = 0.05
 # Upper bound for the perturbed fictitious play regret (external) (corollary 4.4)
 bound_values = [(2*np.sqrt(step*loss_array.shape[0]) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
 plt.plot(range(step_number), bound_values)
+plt.xlabel("Rounds")
+plt.ylabel("Regret")
+plt.legend(["Player 1 Regret", "Perturbed Fictitious Play Bound"])
 
 plt.show()
