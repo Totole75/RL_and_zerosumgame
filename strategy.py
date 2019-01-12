@@ -199,6 +199,7 @@ class deterministic_explor_exploit(strategy):
         self.rewards = np.zeros((self.action_nb))
         self.past_actions_index = np.zeros(nb_step).astype(int)
         self.past_actions = np.zeros(self.action_nb)
+        self.mu_hat = np.zeros(nb_step+1)
 
     def draw_action(self, player_past_actions, opponent_past_actions, player_past_actions_index, opponent_past_actions_index):
         # On peut probablement le mettre en version calcul vectoriel. Utile ?
@@ -210,16 +211,22 @@ class deterministic_explor_exploit(strategy):
                 Jt = opponent_past_actions_index[indexes_action].astype(int)
                 self.mu[action, self.draws_nb] = np.mean(self.loss_array[action, Jt])
         
+        # Compute mu_hat
+        J_t = player_past_actions_index[self.draws_nb-1]
+        I_t = opponent_past_actions_index[self.draws_nb-1]
+        #print("j", J_t)
+        #print("i", opponent_past_actions_index)
+        self.mu_hat[self.draws_nb+1] = (self.draws_nb*self.mu_hat[self.draws_nb] + self.loss_array[J_t, I_t])/(self.draws_nb+1)
+
         # Exploration
-        if (tools.is_square(self.draws_nb)):
-            drawn_action = 0
-        elif (tools.is_square(self.draws_nb - 1)):
-            drawn_action = 1
+        for s in range(self.action_nb):
+            if (tools.is_square(self.draws_nb)-s):
+                drawn_action = s
         
         # Exploitation
         else:
             drawn_action = np.argmin(self.mu[:, self.draws_nb])
-        
+                
         self.past_actions_index[self.draws_nb] = drawn_action
         self.past_actions[drawn_action] += 1
         self.draws_nb += 1
