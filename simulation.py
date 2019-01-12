@@ -6,27 +6,27 @@ from strategy import *
 from lh_main import *
 
 # Defining the reward array
-#loss_array = np.array([[3,2],[2,1]])
+loss_array = np.array([[3,2],[2,1]])
 #loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
 #loss_array = np.array([[1,0],[2,3]])
 #loss_array = np.array([[1,-2],[-1,0]])
-loss_array = np.array([[3,0,-2,7],[1,0,4,-2]])
+#loss_array = np.array([[3,0,-2,7],[1,0,4,-2]])
 #loss_array = np.array([[1,2, 3],[4,5, 6]])
-#loss_array = np.random.rand(20,20)
+#loss_array = (1000*np.random.rand(10,10)).astype(int)
 
 # Number of steps for the algorithm
-step_number = 20000
+step_number = 2000
 frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)), 
                         np.zeros((loss_array.shape[1], step_number))]
 
 # Defining the players
 #players = [fictitious_play(loss_array, step_number), fictitious_play(-loss_array.T, step_number)]
-players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
+#players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
 #players = [bandit_UCB(loss_array, 0.2, step_number), oblivious_play(-loss_array.T, np.array([0.5, 0.5]), step_number)]
-#players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
+players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
 #players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
 #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
-#players = [deterministic_explor_exploit(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
+#players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
 #players = [regret_matching(loss_array, step_number),  exp_weighted_average(-loss_array.T, step_number)]
 
 #Solving
@@ -81,3 +81,11 @@ bound_values = [(2*np.sqrt(step*loss_array.shape[0]) + np.sqrt(-0.5*step*np.log(
 plt.plot(range(step_number), bound_values)
 
 plt.show()
+
+# Upper bound for the explor exploit strategy (theorem 7.10 p 222)
+if isinstance(players[0], type(deterministic_explor_exploit(loss_array, step_number))):
+    mu_hat = players[0].mu_hat[1:]
+    mu = np.min(players[0].mu, axis=0)
+    plt.plot(range(step_number), mu_hat, 'b')
+    plt.plot(range(step_number), mu, 'r')
+    plt.show()
