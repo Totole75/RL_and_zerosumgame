@@ -17,13 +17,15 @@ loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
 #loss_array = np.random.rand(20,20)
 
 # Number of steps for the algorithm
-step_number = 2000
+step_number = 1000
 frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)), 
                         np.zeros((loss_array.shape[1], step_number))]
 
-sim_nb = 100
+sim_nb = 10000
 emp_distrib_1 = np.zeros((loss_array.shape[0], sim_nb))
 emp_distrib_2 = np.zeros((loss_array.shape[1], sim_nb))
+
+final_regrets = np.zeros(sim_nb)
 
 for sim_step in tqdm(range(sim_nb)):
     # Defining the players
@@ -58,30 +60,63 @@ for sim_step in tqdm(range(sim_nb)):
             print(joint_past_actions / float(step_number))
     emp_distrib_1[:, sim_step] = players[0].past_actions / step_number
     emp_distrib_2[:, sim_step] = players[1].past_actions / step_number
+    final_regrets[sim_step] = regret_evolution[-1]
 
-def build_df(emp_distrib, player_tag):
-    result_data_rock = {"Mixed strategy for" : [player_tag]*emp_distrib.shape[1], 
-               "value" : ["Rock"]*emp_distrib.shape[1],
-               "action" : emp_distrib[0,:]}
-    result_data_paper = {"Mixed strategy for" : [player_tag]*emp_distrib.shape[1], 
-               "value" : ["Paper"]*emp_distrib.shape[1],
-               "action" : emp_distrib[1,:]}
-    result_data_scissors = {"Mixed strategy for" : [player_tag]*emp_distrib.shape[1], 
-               "value" : ["Scissors"]*emp_distrib.shape[1],
-               "action" : emp_distrib[2,:]}
-    df1 = pd.DataFrame(data=result_data_rock, index=np.arange(emp_distrib.shape[1]))
-    df2 = pd.DataFrame(data=result_data_scissors, index=emp_distrib.shape[1]+np.arange(emp_distrib.shape[1]))
-    df3 = pd.DataFrame(data=result_data_paper, index=2*emp_distrib.shape[1]+np.arange(emp_distrib.shape[1]))
-    return pd.concat([df1, df2, df3])
+#################################################
+# Convergence to a Nash Equilibrium for shifumi #
+#################################################
 
-optimal_df = build_df(np.resize(np.array([1.0/3, 1.0/3, 1.0/3]), (3, 1)), "Nash Equilibrium")
-frames = [build_df(emp_distrib_1, "Player 1"), build_df(emp_distrib_2, "Player 2"), optimal_df]
-df = pd.concat(frames)
+# def build_df(emp_distrib, player_tag):
+#     result_data_rock = {"Mixed strategy for" : [player_tag]*emp_distrib.shape[1], 
+#                "value" : ["Rock"]*emp_distrib.shape[1],
+#                "action" : emp_distrib[0,:]}
+#     result_data_paper = {"Mixed strategy for" : [player_tag]*emp_distrib.shape[1], 
+#                "value" : ["Paper"]*emp_distrib.shape[1],
+#                "action" : emp_distrib[1,:]}
+#     result_data_scissors = {"Mixed strategy for" : [player_tag]*emp_distrib.shape[1], 
+#                "value" : ["Scissors"]*emp_distrib.shape[1],
+#                "action" : emp_distrib[2,:]}
+#     df1 = pd.DataFrame(data=result_data_rock, index=np.arange(emp_distrib.shape[1]))
+#     df2 = pd.DataFrame(data=result_data_scissors, index=emp_distrib.shape[1]+np.arange(emp_distrib.shape[1]))
+#     df3 = pd.DataFrame(data=result_data_paper, index=2*emp_distrib.shape[1]+np.arange(emp_distrib.shape[1]))
+#     return pd.concat([df1, df2, df3])
 
+# optimal_df = build_df(np.resize(np.array([1.0/3, 1.0/3, 1.0/3]), (3, 1)), "Nash Equilibrium")
+# frames = [build_df(emp_distrib_1, "Player 1"), build_df(emp_distrib_2, "Player 2"), optimal_df]
+# df = pd.concat(frames)
+
+# sns.set(style="darkgrid")
+# sns.catplot(x='value', y='action', hue='Mixed strategy for', 
+#                data=df, 
+#                kind='bar', 
+#                errwidth=1.5 ,capsize=.15)
+# plt.ylim(0.32, 0.34)
+# plt.show()
+
+#####################################
+# Regret going over bound frequency #
+#####################################
+
+print("max", np.max(final_regrets))
+
+delta_values = np.arange(5, 55, 5)/100.0
+print(delta_values)
+df = pd.DataFrame()
+for idx, delta in enumerate(delta_values):
+    bound_value = 2*np.sqrt(step_number*loss_array.shape[0]) + np.sqrt(0.5*step_number*np.log(1/(delta)))
+    overbound_bool_values = np.where(final_regrets>=bound_value, 1, 0)
+    result_dict = {"Delta" : [delta]*sim_nb, "Empirical rate of regret going over bound" : overbound_bool_values}
+    current_df = pd.DataFrame(data=result_dict, index=idx*sim_nb+np.arange(sim_nb))
+    df = pd.concat([df, current_df])
+    print(bound_value)
+    #print("max", np.max(final_regrets), "bound", bound_value)
+
+# print(df)
 sns.set(style="darkgrid")
-sns.catplot(x='value', y='action', hue='Mixed strategy for', 
+sns.catplot(x='Delta', y='Empirical rate of regret going over bound', hue='Delta',
                data=df, 
-               kind='bar', 
+               markers="o", linestyles=" ",
+               kind="point", palette=sns.cubehelix_palette(10, rot=-.25, light=.7),
                errwidth=1.5 ,capsize=.15)
-plt.ylim(0.32, 0.34)
+# plt.ylim(0.32, 0.34)
 plt.show()

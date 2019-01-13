@@ -186,7 +186,6 @@ class exp_weighted_average(strategy):
         return drawn_action
 
     def take_reward(self, drawn_action, reward):
-        #print(reward, drawn_action)
         self.rewards[drawn_action] += reward
         
 class deterministic_explor_exploit(strategy):

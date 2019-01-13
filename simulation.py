@@ -7,8 +7,8 @@ from strategy import *
 from lh_main import *
 
 # Defining the reward array
-loss_array = np.array([[3,2],[2,1]])
-#loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
+#loss_array = np.array([[3,2],[2,1]])
+loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
 #loss_array = np.array([[1,0],[2,3]])
 #loss_array = np.array([[1,-2],[-1,0]])
 #loss_array = np.array([[3,0,-2,7],[1,0,4,-2]])
@@ -22,9 +22,9 @@ frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)),
 
 # Defining the players
 #players = [fictitious_play(loss_array, step_number), fictitious_play(-loss_array.T, step_number)]
-#players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
+players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
 #players = [bandit_UCB(loss_array, 0.2, step_number), oblivious_play(-loss_array.T, np.array([0.5, 0.5]), step_number)]
-players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
+#players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
 #players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
 #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
 #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
@@ -78,7 +78,7 @@ plt.show()
 # Displaying bounds related to the regret
 plt.plot(range(step_number), regret_evolution)
 
-delta = 0.05
+delta = 0.1
 # Upper bound for the perturbed fictitious play regret (external) (corollary 4.4)
 bound_values = [(2*np.sqrt(step*loss_array.shape[0]) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
 plt.plot(range(step_number), bound_values)
@@ -95,3 +95,5 @@ if isinstance(players[0], type(deterministic_explor_exploit(loss_array, step_num
     plt.plot(range(step_number), mu_hat, 'b')
     plt.plot(range(step_number), mu, 'r')
     plt.show()
+
+print(bound_values[-1])
