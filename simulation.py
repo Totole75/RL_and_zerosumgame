@@ -16,12 +16,19 @@ loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
 #loss_array = (1000*np.random.rand(10,10)).astype(int)
 
 # Number of steps for the algorithm
-step_number = 2000
+step_number = 10000
 frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)), 
                         np.zeros((loss_array.shape[1], step_number))]
 #Solving
 opt_valeur, opt_strategies = solve(loss_array)
 print(opt_strategies)
+print("Value : " + str(opt_valeur))
+print("")
+
+#Solving
+opt_valeur, opt_strategies = solve(loss_array)
+print(opt_strategies)
+print(opt_strategies[1])
 print("Value : " + str(opt_valeur))
 print("")
 
@@ -82,7 +89,7 @@ plt.show()
 # Upper bound for the perturbed fictitious play regret (external) (corollary 4.4)
 if isinstance(players[0], type(perturbed_fictitious_play(loss_array, step_number))):
     delta = 0.1
-    bound_values = [(2*np.sqrt(step*loss_array.shape[0]) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
+    bound_values = [players[0].loss_gap*(2*np.sqrt(step*loss_array.shape[0]) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
     plt.plot(range(step_number), bound_values)
     plt.xlabel("Rounds")
     plt.ylabel("Regret")
@@ -92,7 +99,7 @@ if isinstance(players[0], type(perturbed_fictitious_play(loss_array, step_number
 # Upper bound for the exponentially weighted average regret (external) (corollary 4.4)
 if isinstance(players[0], type(exp_weighted_average(loss_array, step_number))):
     delta = 0.1
-    bound_values = [(np.sqrt(0.5*step*np.log(loss_array.shape[0])) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
+    bound_values = [players[0].loss_gap*(np.sqrt(0.5*step*np.log(loss_array.shape[0])) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
     plt.plot(range(step_number), bound_values)
     plt.xlabel("Rounds")
     plt.ylabel("Regret")

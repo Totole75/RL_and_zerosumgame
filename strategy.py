@@ -72,6 +72,7 @@ class perturbed_fictitious_play(strategy):
         self.first_turn = True
         self.past_actions = np.zeros(self.action_nb)
         self.past_actions_index = np.zeros(nb_step).astype(int)
+        self.loss_gap = np.max(loss_array) - np.min(loss_array)
 
     def draw_action(self, player_past_actions, opponent_past_actions, player_past_actions_index, opponent_past_actions_index):
         if self.first_turn:
@@ -79,7 +80,7 @@ class perturbed_fictitious_play(strategy):
             self.first_turn = False
         else:
             perturbations = np.random.uniform(low=0, high=np.sqrt(self.action_nb*(1+self.draws_nb)), size=self.action_nb)
-            drawn_action = np.argmin(np.dot(self.loss_array, opponent_past_actions) + perturbations)
+            drawn_action = np.argmin(np.dot(self.loss_array, opponent_past_actions)/self.loss_gap + perturbations)
         self.past_actions[drawn_action] += 1
         self.past_actions_index[self.draws_nb] = drawn_action
         self.draws_nb += 1
@@ -172,9 +173,10 @@ class exp_weighted_average(strategy):
         self.past_actions = np.zeros(self.action_nb)
         self.rewards = np.zeros((self.action_nb))
         self.past_actions_index = np.zeros(nb_step).astype(int)
+        self.loss_gap = np.max(loss_array) - np.min(loss_array)
 
     def draw_action(self, player_past_actions, opponent_past_actions, player_past_actions_index, opponent_past_actions_index):
-        exp_values = np.exp(np.dot(self.loss_array, opponent_past_actions) * (-self.exp_coef/np.sqrt(1+self.draws_nb)))
+        exp_values = np.exp(np.dot(self.loss_array/self.loss_gap, opponent_past_actions) * (-self.exp_coef/np.sqrt(1+self.draws_nb)))
         action_probas = exp_values / np.linalg.norm(exp_values, ord=1)
         drawn_action = np.random.choice(range(self.action_nb), p=action_probas)
         self.past_actions[drawn_action] += 1

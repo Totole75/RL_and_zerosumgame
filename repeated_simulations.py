@@ -16,12 +16,19 @@ loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
 #loss_array = np.array([[1,2, 3],[4,5, 6]])
 #loss_array = np.random.rand(20,20)
 
+#Solving
+opt_valeur, opt_strategies = solve(loss_array)
+print(opt_strategies)
+print(opt_strategies[1])
+print("Value : " + str(opt_valeur))
+print("")
+
 # Number of steps for the algorithm
 step_number = 1000
 frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)), 
                         np.zeros((loss_array.shape[1], step_number))]
 
-sim_nb = 1000
+sim_nb = 10000
 emp_distrib_1 = np.zeros((loss_array.shape[0], sim_nb))
 emp_distrib_2 = np.zeros((loss_array.shape[1], sim_nb))
 
@@ -33,6 +40,7 @@ for sim_step in tqdm(range(sim_nb)):
     #players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
     #players = [bandit_UCB(loss_array, 0.2, step_number), oblivious_play(-loss_array.T, np.array([0.5, 0.5]), step_number)]
     #players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
+    #players = [exp_weighted_average(loss_array, step_number), oblivious_play(-loss_array.T, np.reshape(opt_strategies[1], loss_array.shape[1]), step_number)]
     players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
     #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
     #players = [deterministic_explor_exploit(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
@@ -98,11 +106,12 @@ for sim_step in tqdm(range(sim_nb)):
 ###################################################################
 if isinstance(players[0], type(perturbed_fictitious_play(loss_array, step_number))):
     print("max", np.max(final_regrets))
+    loss_gap = np.max(loss_array) - np.min(loss_array)
     delta_values = np.arange(5, 55, 5)/100.0
     print(delta_values)
     df = pd.DataFrame()
     for idx, delta in enumerate(delta_values):
-        bound_value = 2*np.sqrt(step_number*loss_array.shape[0]) + np.sqrt(0.5*step_number*np.log(1/(delta)))
+        bound_value = loss_gap * (2*np.sqrt(step_number*loss_array.shape[0]) + np.sqrt(0.5*step_number*np.log(1/(delta))))
         overbound_bool_values = np.where(final_regrets>=bound_value, 1, 0)
         result_dict = {"Delta" : [delta]*sim_nb, "Empirical rate of regret going over bound" : overbound_bool_values}
         current_df = pd.DataFrame(data=result_dict, index=idx*sim_nb+np.arange(sim_nb))
@@ -122,11 +131,12 @@ if isinstance(players[0], type(perturbed_fictitious_play(loss_array, step_number
 ##############################################################
 if isinstance(players[0], type(exp_weighted_average(loss_array, step_number))):
     print("max", np.max(final_regrets))
+    loss_gap = np.max(loss_array) - np.min(loss_array)
     delta_values = np.arange(5, 55, 5)/100.0
     print(delta_values)
     df = pd.DataFrame()
     for idx, delta in enumerate(delta_values):
-        bound_value = np.sqrt(0.5*step_number*np.log(loss_array.shape[0])) + np.sqrt(0.5*step_number*np.log(1/(delta)))
+        bound_value = loss_gap * (2*np.sqrt(step_number*loss_array.shape[0]) + np.sqrt(0.5*step_number*np.log(1/(delta))))
         overbound_bool_values = np.where(final_regrets>=bound_value, 1, 0)
         result_dict = {"Delta" : [delta]*sim_nb, "Empirical rate of regret going over bound" : overbound_bool_values}
         current_df = pd.DataFrame(data=result_dict, index=idx*sim_nb+np.arange(sim_nb))
