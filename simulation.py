@@ -19,22 +19,22 @@ loss_array = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
 step_number = 2000
 frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)), 
                         np.zeros((loss_array.shape[1], step_number))]
+#Solving
+opt_valeur, opt_strategies = solve(loss_array)
+print(opt_strategies)
+print("Value : " + str(opt_valeur))
+print("")
 
 # Defining the players
 #players = [fictitious_play(loss_array, step_number), fictitious_play(-loss_array.T, step_number)]
 #players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
 #players = [bandit_UCB(loss_array, 0.2, step_number), oblivious_play(-loss_array.T, np.array([0.5, 0.5]), step_number)]
 #players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
-players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
-#players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
+#players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
+players = [deterministic_explor_exploit(loss_array, step_number), oblivious_play(-loss_array.T, opt_strategies[1].reshape(-1,), step_number)]
 #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
 #players = [regret_matching(loss_array, step_number),  exp_weighted_average(-loss_array.T, step_number)]
 
-#Solving
-opt_valeur, opt_strategies = solve(loss_array)
-print(opt_strategies)
-print("Value : " + str(opt_valeur))
-print("")
 
 joint_past_actions = np.zeros(loss_array.shape)
 # Regret evolution for the first player
@@ -77,6 +77,7 @@ plt.show()
 
 # Displaying bounds related to the regret
 plt.plot(range(step_number), regret_evolution)
+plt.show()
 
 # Upper bound for the perturbed fictitious play regret (external) (corollary 4.4)
 if isinstance(players[0], type(perturbed_fictitious_play(loss_array, step_number))):
@@ -102,6 +103,9 @@ if isinstance(players[0], type(exp_weighted_average(loss_array, step_number))):
 if isinstance(players[0], type(deterministic_explor_exploit(loss_array, step_number))):
     mu_hat = players[0].mu_hat[1:]
     mu = np.min(players[0].mu, axis=0)
-    plt.plot(range(step_number), mu_hat, 'b')
-    plt.plot(range(step_number), mu, 'r')
+    plt.plot(range(step_number), mu_hat, 'b', linewidth=1)
+    plt.plot(range(step_number), mu, 'r', linewidth=1)
+    plt.xlabel("Rounds")
+    plt.ylabel("Loss : mu")
+    plt.legend(["Player 1 mu hat", "Player 1 min(mu)"])
     plt.show()
