@@ -22,10 +22,10 @@ frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)),
 
 # Defining the players
 #players = [fictitious_play(loss_array, step_number), fictitious_play(-loss_array.T, step_number)]
-players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
+#players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
 #players = [bandit_UCB(loss_array, 0.2, step_number), oblivious_play(-loss_array.T, np.array([0.5, 0.5]), step_number)]
 #players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
-#players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
+players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
 #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
 #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
 #players = [regret_matching(loss_array, step_number),  exp_weighted_average(-loss_array.T, step_number)]
@@ -78,15 +78,25 @@ plt.show()
 # Displaying bounds related to the regret
 plt.plot(range(step_number), regret_evolution)
 
-delta = 0.1
 # Upper bound for the perturbed fictitious play regret (external) (corollary 4.4)
-bound_values = [(2*np.sqrt(step*loss_array.shape[0]) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
-plt.plot(range(step_number), bound_values)
-plt.xlabel("Rounds")
-plt.ylabel("Regret")
-plt.legend(["Player 1 Regret", "Perturbed Fictitious Play Bound"])
+if isinstance(players[0], type(perturbed_fictitious_play(loss_array, step_number))):
+    delta = 0.1
+    bound_values = [(2*np.sqrt(step*loss_array.shape[0]) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
+    plt.plot(range(step_number), bound_values)
+    plt.xlabel("Rounds")
+    plt.ylabel("Regret")
+    plt.legend(["Player 1 Regret", "Perturbed Fictitious Play Bound"])
+    plt.show()
 
-plt.show()
+# Upper bound for the exponentially weighted average regret (external) (corollary 4.4)
+if isinstance(players[0], type(exp_weighted_average(loss_array, step_number))):
+    delta = 0.1
+    bound_values = [(np.sqrt(0.5*step*np.log(loss_array.shape[0])) + np.sqrt(-0.5*step*np.log(delta))) for step in range(1, step_number+1)]
+    plt.plot(range(step_number), bound_values)
+    plt.xlabel("Rounds")
+    plt.ylabel("Regret")
+    plt.legend(["Player 1 Regret", "Exponentially Weighted Average Bound"])
+    plt.show()
 
 # Upper bound for the explor exploit strategy (theorem 7.10 p 222)
 if isinstance(players[0], type(deterministic_explor_exploit(loss_array, step_number))):
@@ -95,5 +105,3 @@ if isinstance(players[0], type(deterministic_explor_exploit(loss_array, step_num
     plt.plot(range(step_number), mu_hat, 'b')
     plt.plot(range(step_number), mu, 'r')
     plt.show()
-
-print(bound_values[-1])

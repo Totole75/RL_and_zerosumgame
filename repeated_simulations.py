@@ -21,7 +21,7 @@ step_number = 1000
 frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)), 
                         np.zeros((loss_array.shape[1], step_number))]
 
-sim_nb = 10000
+sim_nb = 1000
 emp_distrib_1 = np.zeros((loss_array.shape[0], sim_nb))
 emp_distrib_2 = np.zeros((loss_array.shape[1], sim_nb))
 
@@ -30,10 +30,10 @@ final_regrets = np.zeros(sim_nb)
 for sim_step in tqdm(range(sim_nb)):
     # Defining the players
     #players = [fictitious_play(loss_array, step_number), fictitious_play(-loss_array.T, step_number)]
-    players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
+    #players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
     #players = [bandit_UCB(loss_array, 0.2, step_number), oblivious_play(-loss_array.T, np.array([0.5, 0.5]), step_number)]
     #players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
-    #players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
+    players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
     #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
     #players = [deterministic_explor_exploit(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
     #players = [regret_matching(loss_array, step_number),  exp_weighted_average(-loss_array.T, step_number)]
@@ -93,30 +93,50 @@ for sim_step in tqdm(range(sim_nb)):
 # plt.ylim(0.32, 0.34)
 # plt.show()
 
-#####################################
-# Regret going over bound frequency #
-#####################################
+###################################################################
+# Regret going over bound frequency for perturbed fictitious play #
+###################################################################
+if isinstance(players[0], type(perturbed_fictitious_play(loss_array, step_number))):
+    print("max", np.max(final_regrets))
+    delta_values = np.arange(5, 55, 5)/100.0
+    print(delta_values)
+    df = pd.DataFrame()
+    for idx, delta in enumerate(delta_values):
+        bound_value = 2*np.sqrt(step_number*loss_array.shape[0]) + np.sqrt(0.5*step_number*np.log(1/(delta)))
+        overbound_bool_values = np.where(final_regrets>=bound_value, 1, 0)
+        result_dict = {"Delta" : [delta]*sim_nb, "Empirical rate of regret going over bound" : overbound_bool_values}
+        current_df = pd.DataFrame(data=result_dict, index=idx*sim_nb+np.arange(sim_nb))
+        df = pd.concat([df, current_df])
+        print(bound_value)
 
-print("max", np.max(final_regrets))
+    sns.set(style="darkgrid")
+    sns.catplot(x='Delta', y='Empirical rate of regret going over bound', hue='Delta',
+                data=df, 
+                markers="o", linestyles=" ",
+                kind="point", palette=sns.cubehelix_palette(10, rot=-.25, light=.7),
+                errwidth=1.5 ,capsize=.15)
+    plt.show()
 
-delta_values = np.arange(5, 55, 5)/100.0
-print(delta_values)
-df = pd.DataFrame()
-for idx, delta in enumerate(delta_values):
-    bound_value = 2*np.sqrt(step_number*loss_array.shape[0]) + np.sqrt(0.5*step_number*np.log(1/(delta)))
-    overbound_bool_values = np.where(final_regrets>=bound_value, 1, 0)
-    result_dict = {"Delta" : [delta]*sim_nb, "Empirical rate of regret going over bound" : overbound_bool_values}
-    current_df = pd.DataFrame(data=result_dict, index=idx*sim_nb+np.arange(sim_nb))
-    df = pd.concat([df, current_df])
-    print(bound_value)
-    #print("max", np.max(final_regrets), "bound", bound_value)
+##############################################################
+# Regret going over bound frequency for exp weighted average #
+##############################################################
+if isinstance(players[0], type(exp_weighted_average(loss_array, step_number))):
+    print("max", np.max(final_regrets))
+    delta_values = np.arange(5, 55, 5)/100.0
+    print(delta_values)
+    df = pd.DataFrame()
+    for idx, delta in enumerate(delta_values):
+        bound_value = np.sqrt(0.5*step_number*np.log(loss_array.shape[0])) + np.sqrt(0.5*step_number*np.log(1/(delta)))
+        overbound_bool_values = np.where(final_regrets>=bound_value, 1, 0)
+        result_dict = {"Delta" : [delta]*sim_nb, "Empirical rate of regret going over bound" : overbound_bool_values}
+        current_df = pd.DataFrame(data=result_dict, index=idx*sim_nb+np.arange(sim_nb))
+        df = pd.concat([df, current_df])
+        print(bound_value)
 
-# print(df)
-sns.set(style="darkgrid")
-sns.catplot(x='Delta', y='Empirical rate of regret going over bound', hue='Delta',
-               data=df, 
-               markers="o", linestyles=" ",
-               kind="point", palette=sns.cubehelix_palette(10, rot=-.25, light=.7),
-               errwidth=1.5 ,capsize=.15)
-# plt.ylim(0.32, 0.34)
-plt.show()
+    sns.set(style="darkgrid")
+    sns.catplot(x='Delta', y='Empirical rate of regret going over bound', hue='Delta',
+                data=df, 
+                markers="o", linestyles=" ",
+                kind="point", palette=sns.cubehelix_palette(10, rot=-.25, light=.7),
+                errwidth=1.5 ,capsize=.15)
+    plt.show()

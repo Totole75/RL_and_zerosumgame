@@ -73,7 +73,6 @@ class perturbed_fictitious_play(strategy):
         self.past_actions = np.zeros(self.action_nb)
         self.past_actions_index = np.zeros(nb_step).astype(int)
 
-
     def draw_action(self, player_past_actions, opponent_past_actions, player_past_actions_index, opponent_past_actions_index):
         if self.first_turn:
             drawn_action = np.random.randint(0, self.action_nb)
@@ -101,7 +100,6 @@ class bandit_UCB(strategy):
         self.past_actions = np.zeros(self.action_nb)
         self.past_actions_index = np.zeros(nb_step).astype(int)
 
-        
     def draw_action(self, player_past_actions, opponent_past_actions, player_past_actions_index, opponent_past_actions_index):
         if (self.draws_nb < self.action_nb) :
             # Sampling each arm/action first
@@ -174,7 +172,6 @@ class exp_weighted_average(strategy):
         self.past_actions = np.zeros(self.action_nb)
         self.rewards = np.zeros((self.action_nb))
         self.past_actions_index = np.zeros(nb_step).astype(int)
-
 
     def draw_action(self, player_past_actions, opponent_past_actions, player_past_actions_index, opponent_past_actions_index):
         exp_values = np.exp(np.dot(self.loss_array, opponent_past_actions) * (-self.exp_coef/np.sqrt(1+self.draws_nb)))
