@@ -34,7 +34,7 @@ def solve(loss_array):
         
     file_object = open('game.txt')
     txt = "".join(file_object.readlines())
-    print(txt)
+    #print(txt)
     m1, m2 = io_lh.parseInputMatrices(txt)
 
     # Obtain input matrices from the standard input

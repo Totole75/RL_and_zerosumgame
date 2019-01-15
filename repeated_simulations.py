@@ -37,11 +37,11 @@ final_regrets = np.zeros(sim_nb)
 for sim_step in tqdm(range(sim_nb)):
     # Defining the players
     #players = [fictitious_play(loss_array, step_number), fictitious_play(-loss_array.T, step_number)]
-    #players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
+    players = [perturbed_fictitious_play(loss_array, step_number), perturbed_fictitious_play(-loss_array.T, step_number)]
     #players = [bandit_UCB(loss_array, 0.2, step_number), oblivious_play(-loss_array.T, np.array([0.5, 0.5]), step_number)]
     #players = [bandit_UCB(loss_array, 0.2, step_number), bandit_UCB(-loss_array.T, 0.2, step_number)]
     #players = [exp_weighted_average(loss_array, step_number), oblivious_play(-loss_array.T, np.reshape(opt_strategies[1], loss_array.shape[1]), step_number)]
-    players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
+    #players = [exp_weighted_average(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
     #players = [deterministic_explor_exploit(loss_array, step_number), deterministic_explor_exploit(-loss_array.T, step_number)]
     #players = [deterministic_explor_exploit(loss_array, step_number), exp_weighted_average(-loss_array.T, step_number)]
     #players = [regret_matching(loss_array, step_number),  exp_weighted_average(-loss_array.T, step_number)]
