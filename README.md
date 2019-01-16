@@ -1,72 +1,27 @@
-# RL_and_zerosumgame
+# RL and zero sum games : finding equilibria
 
-Find equilibrium in games with RL
+Work mainly based on the book "Prediction, Learning, and Games" by CESA-BIANCHI and LUGOSI
 
-Work based on the book "Prediction, Learning, and Games" by CESA-BIANCHI and LUGOSI
+For more details, see section 
 
-Any two player zero sum game played with Hannan consistent strategies leads to the convergence of the frequency distributions
-to a Nash Equilibrium (Corollary 7.1 p.189)
+## Strategies that have been implemented
 
-## Concerning the UCB
-
-Doesn't work well against an oblivious opponent equipped with an optimal strategy, or himself.
-
-The algorithm learns well when there's a noticeable difference between the different arms to pull.
-
-Here the gap is too narrow so it just focuses on one arm, the one that worked well in the beginning,
-and it keeps choosing it over the other. And the upper bound term grows too slowly to make a difference on
-10000 steps or so.
-
-For the situation opposing two bandits, they both play in the beginning their arms in a predetermined order,
-and the results do have a huge influence on the game afterwards.
-
-I don't know if it converges to a correlated equilibirum or else though.
-
-## Implementation of the fictitious play (aka follow the leader)
-
-Details for the implementation (value for the perturbation interval, etc ...) are provided in section 4 p.76 of the book.
-
-## Exponentially weighted average
-
-Details for the implementation (for instance the value for the coefficient \eta) are also provided in section 4 of the book.
-See corollary 4.3 p.73
-
-## Points bloquants
-
-Difference entre equilibre de Nash et stratégie optimale associée à la valeur
-
-Remarque 7.4, convergence vers l'équilibre de Nash, mais pas vers l'équilibre de Nash
-
-Explication de l'algorithme d'exploration exploitation 
-
-## Méthodes à implémenter
-
-Implémentation de l'algorithme Lemke Hawson
-
-Fictitious play (not Hannan consistent)
-Possibilité de rendre Hannan consistent en perturbant légèrement
-Borne à tracer (corollaire 4.4 p76, non oblivious opponent case)
+Fictitious play (not Hannan consistent) and Perturbed fictitious play (Hannan consistent)
 
 Exponentially weighted average (Hannan consistent)
-Affichage de la borne (Corollaire 4.2)
 
 Regret matching (Hannan consistent)
 
-section 7.11
 Deterministic exploration exploitation
 
-Multi Armed Bandit UCB
-To be used when looking for a pure strategy
+## What to do with the code ?
 
-## Bonus
+Each strategy is implemented as a class, and all of them inherit from a common class. The objective is to use a unified framework when confronting them. The corresponding code can be found in `strategy.py`.
 
-Regret interne et jeu à m joueurs (pour atteindre des équilibres corrélés)
+Simulations are done thanks to `simulation.py`.
 
-Uncoupled strategy to find PURE/MIX equilibria (p206)
-Bad complexity in the case of m players, quadratic in our case ?
-Version stationnaire en exercice 7.25
+`convergence_check.py` proposes to run more efficiently different strategies against random games.
 
-Time varying games (6.7 and 7.5), résolu avec regret interne
+`speed.py` is here to get more graphical insights on how fast strategies converge to the optimum.
 
-Unknown game : Experimental Regret Testing
-Th 7.8 pour calibrer les parametres
+`repeated_simulations.py` helps get experimental validation on theoretical bounds.

@@ -10,7 +10,7 @@ from lh_main import *
 loss_array = (1000*np.random.rand(20,20)).astype(int)
 
 # Number of steps for the algorithm
-step_number = 100000
+step_number = 80000
 frequency_evolutions = [np.zeros((loss_array.shape[0], step_number)), 
                         np.zeros((loss_array.shape[1], step_number))]
 
@@ -21,7 +21,7 @@ print("Value : " + str(opt_valeur))
 print("")
 
 # Strategies we test
-strategies = [perturbed_fictitious_play, exp_weighted_average, regret_matching]
+strategies = [fictitious_play, perturbed_fictitious_play, exp_weighted_average, regret_matching, deterministic_explor_exploit]
 
 def simulate_ob_game(loss_array, player_learning_strategy, ob_player_strategy_distrib):
     players = [player_learning_strategy(loss_array, step_number), 
@@ -55,7 +55,7 @@ plt.plot(range(erased_values, step_number), [-opt_valeur]*(step_number-erased_va
 
 mean_reward_evo = np.zeros((len(strategies), step_number))
 for idx, sim_strategy in enumerate(strategies):
-    rewards = simulate_ob_game(loss_array, perturbed_fictitious_play, np.reshape(opt_strategies[1], loss_array.shape[1]))
+    rewards = simulate_ob_game(loss_array, sim_strategy, np.reshape(opt_strategies[1], loss_array.shape[1]))
     mean_reward_evo[idx, :] = np.cumsum(rewards) / np.arange(1, step_number+1)
     plt.plot(range(erased_values, step_number), mean_reward_evo[idx, erased_values:])
 
