@@ -20,8 +20,8 @@ def simulate_ob_game(player_learning_strategy,
         # Optimal value is negative
         opt_valeur = -opt_valeur
 
-        players = [player_learning_strategy(loss_array, step_number), 
-                oblivious_play(-loss_array.T, np.reshape(opt_strategies[1], loss_array.shape[1]), step_number)]
+        players = [player_learning_strategy(loss_array/1000.0, step_number), 
+                oblivious_play(-loss_array.T/1000.0, np.reshape(opt_strategies[1], loss_array.shape[1]), step_number)]
         joint_past_actions = np.zeros(loss_array.shape)
         # Regret evolution for the first player
         regret_evolution = np.zeros(step_number)
@@ -36,7 +36,7 @@ def simulate_ob_game(player_learning_strategy,
                 player_past_actions_index = players[(player_idx)%2].past_actions_index
                 drawn_actions.append(player.draw_action(player_past_actions, opponent_past_actions, player_past_actions_index, opponent_past_actions_index))
             current_reward = loss_array[drawn_actions[0], drawn_actions[1]]
-            rewards_array[step] = current_reward
+            rewards_array[step] = current_reward - 1
             joint_past_actions[drawn_actions[0], drawn_actions[1]] += 1
             regret_evolution[step] = (np.sum(joint_past_actions*loss_array) - np.min(np.dot(loss_array, players[1].past_actions)))
             for player_idx, player in enumerate(players):
@@ -50,8 +50,8 @@ sns.set(style="darkgrid")
 colors = ['#FF0000', '#FF6347', '#008000', '#32CD32', '#0000FF', '#6A5ACD']
 #plt.plot(range(erased_values, step_number), [-opt_valeur]*(step_number-erased_values))
 # Number of steps for the algorithm
-step_number = 100000
-sim_nb = 30
+step_number = 2000
+sim_nb = 20
 reward_gaps =  np.zeros((len(strategies), sim_nb, step_number))
 for idx, sim_strategy in enumerate(strategies):
     reward_gaps[idx, :,:] = simulate_ob_game(sim_strategy, step_number, sim_nb)
