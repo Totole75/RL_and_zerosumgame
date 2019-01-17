@@ -7,7 +7,7 @@ from strategy import *
 from lh_main import *
 
 # Strategies we test
-strategies = [fictitious_play]#, perturbed_fictitious_play, exp_weighted_average, regret_matching]
+strategies = [fictitious_play, perturbed_fictitious_play, exp_weighted_average]
 
 def simulate_ob_game(player_learning_strategy, 
                      step_number, sim_nb):
@@ -47,22 +47,27 @@ def simulate_ob_game(player_learning_strategy,
 
 erased_values = 0
 sns.set(style="darkgrid")
+colors = ['#FF0000', '#FF6347', '#008000', '#32CD32', '#0000FF', '#6A5ACD']
 #plt.plot(range(erased_values, step_number), [-opt_valeur]*(step_number-erased_values))
 # Number of steps for the algorithm
-step_number = 10000
-sim_nb = 10
+step_number = 100000
+sim_nb = 30
+reward_gaps =  np.zeros((len(strategies), sim_nb, step_number))
+for idx, sim_strategy in enumerate(strategies):
+    reward_gaps[idx, :,:] = simulate_ob_game(sim_strategy, step_number, sim_nb)
+    reward_means = np.mean(reward_gaps[idx, :,:], axis=0)
+    reward_std = np.std(reward_gaps[idx, :,:], axis=0)
+    plt.plot(range(erased_values, step_number), reward_means[erased_values:], color=colors[2*idx])
 
 for idx, sim_strategy in enumerate(strategies):
-    reward_gaps = simulate_ob_game(sim_strategy, step_number, sim_nb)
-    reward_means = np.mean(reward_gaps, axis=0)
-    reward_std = np.std(reward_gaps, axis=0)
-    plt.plot(range(erased_values, step_number), reward_means[erased_values:], "r-")
-    plt.plot(range(erased_values, step_number), (reward_means-reward_std)[erased_values:], "g-")
-    plt.plot(range(erased_values, step_number), (reward_means+reward_std)[erased_values:], "g-")
+    reward_means = np.mean(reward_gaps[idx,:,:], axis=0)
+    reward_std = np.std(reward_gaps[idx, :,:], axis=0)
+    plt.plot(range(erased_values, step_number), (reward_means-1.96*reward_std)[erased_values:], color=colors[2*idx+1])
+    plt.plot(range(erased_values, step_number), (reward_means+1.96*reward_std)[erased_values:], color=colors[2*idx+1])
 
-#plt.legend([sim_strategy.__name__ for sim_strategy in strategies])
+plt.legend([sim_strategy.__name__ for sim_strategy in strategies])
 plt.xlabel("Rounds")
-plt.ylabel("Distance")
+plt.ylabel("Relative distance between learned loss and optimal loss")
 plt.show()
 
 # Showing convergence to the optimal strategy
